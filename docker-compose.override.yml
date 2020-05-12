@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  db:
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  web:
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    env_file:
+      - web/.env
+    volumes:
+      - ./web/src:/code/src
+      - ./web/tests:/code/tests
+      - ./web/Pipfile:/code/Pipfile
+      - ./web/Pipfile.lock:/code/Pipfile.lock
+      - ./web/pytest.ini:/code/pytest.ini
+      - ./web/.coveragerc:/code/.coveragerc
+    ports:
+      - 8000:8000

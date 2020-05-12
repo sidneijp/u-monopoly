@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+ipython = "*"
+factory-boy = "*"
+coverage = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-factoryboy = "*"
+pytest-watch = "*"
+pytest-django = "*"
+
+[packages]
+gunicorn = "*"
+django = "*"
+djangorestframework = "*"
+psycopg2 = "*"
+drf-yasg = "*"
+
+[requires]
+python_version = "3.8"

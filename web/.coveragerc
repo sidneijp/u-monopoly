@@ -1,0 +1,32 @@
+[run]
+relative_files = True
+branch = True
+source = src
+omit =
+    */__init__.py,
+    */__pycache__/*,
+    */manage.py,
+    */setup.py,
+    */*settings*.py,
+    */settings/*.py,
+    */urls.py,
+    */migrations/*,
+    */test?/*,
+    */test?_*.py,
+    */*_test?.py,
+    */test?.py
+    */wsgi.py,
+    */asgi.py,
+    */conftest.py,
+    */*.pyc,
+    */.venv/*,
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if settings\.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    def __str__
+    def __repr__
