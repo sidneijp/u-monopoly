@@ -62,6 +62,7 @@ jobs:
                     cp .stg/web/.env.stg web/.env
 
                     eval $(docker-machine env --shell sh u-monopoly)
+                    docker-compose -f docker-compose.yml -f docker-compose.stg.yml pull
                     docker-compose -f docker-compose.yml -f docker-compose.stg.yml up -d --no-build --remove-orphans
                     docker-compose -f docker-compose.yml -f docker-compose.stg.yml exec web pipenv run src/manage.py migrate
                     docker-compose -f docker-compose.yml -f docker-compose.stg.yml exec web pipenv run src/manage.py collectstatic --noinput
