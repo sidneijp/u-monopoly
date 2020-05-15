@@ -45,6 +45,9 @@ jobs:
                 name: Deploy
                 command: |
                     export BUILD_VERSION=`echo "$CIRCLE_SHA1" | cut -c 1-8`;
+                    # $CIRCLE_WORKING_DIRECTORY workaround
+                    # https://discuss.circleci.com/t/circle-working-directory-doesnt-expand/17007/7
+                    export CIRCLE_WORKING_DIRECTORY=`echo $CIRCLE_WORKING_DIRECTORY | sed "s|~|$HOME|"`
 
                     cp machine.dat $HOME/.docker/
                     cd $HOME/.docker/
