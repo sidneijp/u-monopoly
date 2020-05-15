@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  db:
+    volumes:
+      - dbdata:/var/lib/postgresql/db-data
+  web:
+    ports:
+      - 80:8000
+    image: sidneijp/u-monopoly:${BUILD_VERSION:-latest}
+volumes:
+  dbdata:
+    external: false

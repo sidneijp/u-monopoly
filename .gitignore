@@ -130,3 +130,6 @@ dmypy.json
 
 # Development Tools related
 .idea
+
+.stg/
+.stg.tar.gz
