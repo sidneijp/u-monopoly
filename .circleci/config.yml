@@ -1,0 +1,52 @@
+version: 2.1
+jobs:
+    build-test-deliver:
+        working_directory: ~/u-monopoly/
+        docker:
+            - image: sidneijp/circleci-executor:latest
+              environment:
+                  DOCKER_REGISTRY: sidneijp
+        steps:
+            - checkout
+            - setup_remote_docker:
+                version: 18.06.0-ce
+                docker_layer_caching: false
+            - run:
+                name: Login to Docker Hub
+                command: |
+                    echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USER --password-stdin
+            - run:
+                name: Build Docker Images
+                command: |
+                    cp .env.sample .env
+                    cp web/src/.env.sample web/src/.env
+                    export BUILD_VERSION=`echo "$CIRCLE_SHA1" | cut -c 1-8`;
+                    docker-compose -f docker-compose.yml -f docker-compose.test.yml build --pull
+            - run:
+                name: Run Application environment
+                command: |
+                    export BUILD_VERSION=`echo "$CIRCLE_SHA1" | cut -c 1-8`;
+                    docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d --no-build
+            - run:
+                name: Run Backend's tests
+                command: |
+                    docker-compose -f docker-compose.yml -f docker-compose.test.yml exec web pipenv run ./manage.py migrate
+                    docker-compose -f docker-compose.yml -f docker-compose.test.yml exec web pipenv run pytest --cov=./src --cov-report=xml
+                    docker cp "$(docker-compose -f docker-compose.yml -f docker-compose.test.yml ps -q web)":/code/coverage.xml web/coverage.xml
+                    wget -qO - https://coverage.codacy.com/get.sh | sh -s report -l Python -r web/coverage.xml
+            - run:
+                name: Delivery Docker Images to Docker Hub
+                command: |
+                    export BUILD_VERSION=`echo "$CIRCLE_SHA1" | cut -c 1-8`;
+
+                    if [ "$CIRCLE_BRANCH" = "develop" ]
+                    then
+                        docker tag "$DOCKER_REGISTRY"/u-monopoly:"$BUILD_VERSION" "$DOCKER_REGISTRY"/u-monopoly:latest;
+                        docker push "$DOCKER_REGISTRY"/u-monopoly:"$BUILD_VERSION";
+                        docker push "$DOCKER_REGISTRY"/u-monopoly:latest;
+                    fi;
+workflows:
+    version: 2.1
+    integration:
+        jobs:
+            - build-test-deliver

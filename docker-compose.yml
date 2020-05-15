@@ -2,10 +2,18 @@ version: "3.7"
 services:
   db:
     image: postgres:12.2-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
   web:
+    env_file:
+      - web/.env
+    image: sidneijp/u-monopoly:latest
     build:
       context: ./web
     depends_on:
       - db
     environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}
       - PYTHONUNBUFFERED=1
