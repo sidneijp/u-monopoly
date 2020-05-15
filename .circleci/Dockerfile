@@ -1,7 +1,7 @@
 FROM docker:18.06.3-ce-git
 
 RUN apk add --no-cache --virtual .build-deps \
-    py-pip libffi-dev openssl-dev python-dev gcc musl-dev make curl openjdk8-jre nodejs npm \
+    py-pip libffi-dev openssl openssl-dev python-dev gcc musl-dev make curl openjdk8-jre nodejs npm \
     && pip install --no-cache-dir docker-compose==1.24.1 awscli==1.16.224
 
 RUN base=https://github.com/docker/machine/releases/download/v0.16.0 \
