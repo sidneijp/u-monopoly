@@ -19,7 +19,7 @@ jobs:
                 name: Build Docker Images
                 command: |
                     cp .env.sample .env
-                    cp web/src/.env.sample web/src/.env
+                    cp web/.env.sample web/.env
                     export BUILD_VERSION=`echo "$CIRCLE_SHA1" | cut -c 1-8`;
                     docker-compose -f docker-compose.yml -f docker-compose.test.yml build --pull
             - run:
