@@ -65,7 +65,6 @@ jobs:
                     docker-compose -f docker-compose.yml -f docker-compose.stg.yml pull
                     docker-compose -f docker-compose.yml -f docker-compose.stg.yml up -d --no-build --remove-orphans
                     docker-compose -f docker-compose.yml -f docker-compose.stg.yml exec web pipenv run src/manage.py migrate
-                    docker-compose -f docker-compose.yml -f docker-compose.stg.yml exec web pipenv run src/manage.py collectstatic --noinput
 workflows:
     version: 2.1
     integration:
