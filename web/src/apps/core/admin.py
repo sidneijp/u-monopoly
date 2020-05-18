@@ -3,11 +3,6 @@ from django.contrib import admin
 from . import models
 
 
-@admin.register(models.Dice)
-class DiceAdmin(admin.ModelAdmin):
-    list_display = ('number_of_faces',)
-
-
 @admin.register(models.Simulation)
 class SimulationAdmin(admin.ModelAdmin):
     list_display = (
@@ -23,22 +18,18 @@ class MatchAdmin(admin.ModelAdmin):
 
 @admin.register(models.Player)
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ('match', 'order', 'behavior', 'name', 'account_balance', 'is_winner',)
+    list_display = ('match', 'order', 'behavior', 'account_balance',)
     ordering = ('match', 'order',)
 
 
 @admin.register(models.Property)
 class PropertyAdmin(admin.ModelAdmin):
-    list_display = ('match', 'order', 'owner', 'name', 'rent_price', 'sale_price', )
+    list_display = ('match', 'order', 'rent_price', 'sale_price', )
     ordering = ('match', 'order', )
 
 
 @admin.register(models.Turn)
 class TurnAdmin(admin.ModelAdmin):
-    list_display = ('match', 'player', 'property', 'dice_result',)
+    list_display = ('player', 'dice', 'account_movement')
 
-
-@admin.register(models.TurnAccountMovement)
-class TurnAccountMovementAdmin(admin.ModelAdmin):
-    list_display = ('turn', 'value',)
 
