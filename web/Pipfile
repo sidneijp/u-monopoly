@@ -22,6 +22,7 @@ factory-boy = "*"
 python-decouple = "*"
 dj-database-url = "*"
 django-rq = "*"
+markdown = "*"
 
 [requires]
 python_version = "3.8"
