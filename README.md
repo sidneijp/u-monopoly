@@ -8,6 +8,7 @@ Micro Monopoly is a simplified "Monopoly" like game.
 ## URLs
 
 - http://locahost:8000/api/ -> root REST API
+- http://locahost:8000/api/swagger/ -> Swagger interface
 - http://locahost:8000/admin/ -> Django's admin interface
 - http://locahost:8000/queue/ -> Redis Queue management interface
 
