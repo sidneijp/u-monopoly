@@ -21,6 +21,7 @@ drf-yasg = "*"
 factory-boy = "*"
 python-decouple = "*"
 dj-database-url = "*"
+django-rq = "*"
 
 [requires]
 python_version = "3.8"

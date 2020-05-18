@@ -33,7 +33,7 @@ class Simulation(models.Model):
         _('bonus'), default=DEFAULT_BONUS,
         max_digits=8, decimal_places=2
     )
-    dice = models.PositiveSmallIntegerField(_('times to run'), default=DEFAULT_DICE_FACES)
+    dice = models.PositiveSmallIntegerField(_('dice'), default=DEFAULT_DICE_FACES)
     times_to_run = models.PositiveSmallIntegerField(_('times to run'), default=DEFAULT_TIMES_TO_RUN)
     alias = models.CharField(_('alias'), max_length=80, blank=True)
 
@@ -48,6 +48,23 @@ class Simulation(models.Model):
         match = Match(simulation=self)
         match.save()
         return match
+
+
+class SimulationOutcome(models.Model):
+    simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE)
+    timed_out_matches = models.PositiveSmallIntegerField(_('time out matches'))
+    average_turns = models.PositiveSmallIntegerField(_('average match turns'))
+    random_behavior = models.PositiveSmallIntegerField(_('% random behavior wins'))
+    conservative_behavior = models.PositiveSmallIntegerField(_('% conservative behavior wins'))
+    picky_behavior = models.PositiveSmallIntegerField(_('% picky behavior wins'))
+    impulsive_behavior = models.PositiveSmallIntegerField(_('% impulsive behavior wins'))
+
+    class Meta:
+        verbose_name = _('Simulation outcome')
+        verbose_name_plural = _('Simulations outcomes')
+
+    def __str__(self):
+        return f'{self.alias or self.pk}'
 
 
 class Match(models.Model):

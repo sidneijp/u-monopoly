@@ -19,3 +19,17 @@ services:
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       - PYTHONUNBUFFERED=1
+  redis:
+    image: redis:5-alpine
+    env_file: .env
+  rq:
+    image: sidneijp/u-monopoly:latest
+    command: src/manage.py rqworker
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - web/.env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - PYTHONUNBUFFERED=1

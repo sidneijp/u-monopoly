@@ -51,6 +51,7 @@ DEFAULT_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'drf_yasg',
+    'django_rq',
 ]
 
 LOCAL_APPS = [
@@ -89,6 +90,46 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[%(asctime)s][%(levelname)s] %(name)s '
+            '%(filename)s:%(funcName)s:%(lineno)d | %(message)s',
+            'datefmt': '%H:%M:%S'
+        },
+        'rq_console': {
+            'format': "%(asctime)s %(message)s",
+            'datefmt': "%H:%M:%S",
+        },
+    },
+    'handlers': {
+        'default': {
+            'level': 'INFO',
+            'formatter': 'standard',
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stderr'
+        },
+        'rq_console': {
+            'level': "DEBUG",
+            'class': "rq.utils.ColorizingStreamHandler",
+            'formatter': "rq_console",
+            'exclude': ["%(asctime)s"],
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['default'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'rq.worker': {
+            'handlers': ["rq_console"],
+            'level': "DEBUG"
+        },
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -98,6 +139,16 @@ DATABASES = {
         'DATABASE_URL',
         cast=db_url,
     )
+}
+
+# Redis Queue (python RQ)
+#
+
+RQ_QUEUES = {
+    "default": {
+        "URL": config("REDIS_URL", default='redis://redis:6379/0'),
+        'DEFAULT_TIMEOUT': config("REDIS_TIMEOUT", cast=int, default=10800),
+    }
 }
 
 

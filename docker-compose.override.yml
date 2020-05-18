@@ -13,3 +13,13 @@ services:
       - ./web/.coveragerc:/code/.coveragerc
     ports:
       - 8000:8000
+  rq:
+    depends_on:
+      - web
+    volumes:
+      - ./web/src:/code/src
+      - ./web/tests:/code/tests
+      - ./web/Pipfile:/code/Pipfile
+      - ./web/Pipfile.lock:/code/Pipfile.lock
+      - ./web/pytest.ini:/code/pytest.ini
+      - ./web/.coveragerc:/code/.coveragerc
