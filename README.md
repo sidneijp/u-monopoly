@@ -19,7 +19,7 @@ Micro Monopoly is a simplified "Monopoly" like game.
 
 ## Quickstart
 
-Build:
+Build container's image:
 
 ```shell script
 docker-compose build
@@ -33,10 +33,10 @@ cp web/.env.sample web/.env
 # edit .env and web/.env if necessary 
 ```
 
-Build container's image:
+Run application services:
 
 ```shell script
-docker-compose up --build
+docker-compose up
 ```
 
 Run database migrations:
