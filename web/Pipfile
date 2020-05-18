@@ -19,6 +19,8 @@ djangorestframework = "*"
 psycopg2 = "*"
 drf-yasg = "*"
 factory-boy = "*"
+python-decouple = "*"
+dj-database-url = "*"
 
 [requires]
 python_version = "3.8"

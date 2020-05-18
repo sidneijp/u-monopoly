@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from decouple import config, Csv
 from django.core.exceptions import ImproperlyConfigured
+from dj_database_url import parse as db_url
 
 from .utils import env_parsers
 
@@ -24,18 +26,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 if SECRET_KEY is None:
     raise ImproperlyConfigured('SECRET_KEY must be defined.')
 
 SECRET_KEY = env_parsers.remove_closing_quotes(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', False)
-DEBUG = env_parsers.parse_bool(DEBUG)
+DEBUG = config('DEBUG', cast=bool, default=False)
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1, localhost, 0.0.0.0')
-ALLOWED_HOSTS = env_parsers.parse_csv_to_list(ALLOWED_HOSTS)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1, localhost, 0.0.0.0')
 
 # Application definition
 
@@ -94,10 +94,10 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': config(
+        'DATABASE_URL',
+        cast=db_url,
+    )
 }
 
 
