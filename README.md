@@ -1,4 +1,7 @@
 # u-monopoly
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d8cfb19775884f3fa5789fe7d5896482)](https://app.codacy.com/manual/sidneijp/u-monopoly?utm_source=github.com&utm_medium=referral&utm_content=sidneijp/u-monopoly&utm_campaign=Badge_Grade_Dashboard)
+
 Micro Monopoly is a simplified "Monopoly" like game.
 
 ## Dependencies
