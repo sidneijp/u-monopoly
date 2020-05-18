@@ -1,9 +1,15 @@
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 
 from . import models, serializers, tasks
 
 
-class SimulationViewSet(viewsets.ModelViewSet):
+class SimulationViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
     queryset = models.Simulation.objects.all()
     serializer_class = serializers.SimulationSerializer
 

@@ -11,6 +11,14 @@ class SimulationAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.SimulationOutcome)
+class SimulationOutcomeAdmin(admin.ModelAdmin):
+    list_display = (
+        'simulation', 'timed_out_matches', 'average_turns', 'winner_behavior',
+        'impulsive_behavior', 'picky_behavior', 'conservative_behavior', 'random_behavior',
+    )
+
+
 @admin.register(models.Match)
 class MatchAdmin(admin.ModelAdmin):
     list_display = ('simulation',)

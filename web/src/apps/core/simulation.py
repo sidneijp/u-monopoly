@@ -41,7 +41,34 @@ class SimulationRunner:
         self.games.append(game)
 
     def shutdown(self):
-        pass
+        self.save_simulation_outcome()
+
+    def save_simulation_outcome(self):
+        models.SimulationOutcome.objects.create(
+            simulation=self.simulation,
+            timed_out_matches=self.get_total_of_timed_out_matches(),
+            average_turns=self.get_average_turns(),
+            impulsive_behavior=self.get_behavior_victories_percentage(models.Player.BehaviorChoices.IMPULSIVE),
+            picky_behavior=self.get_behavior_victories_percentage(models.Player.BehaviorChoices.PICKY),
+            conservative_behavior=self.get_behavior_victories_percentage(models.Player.BehaviorChoices.CONSERVATIVE),
+            random_behavior=self.get_behavior_victories_percentage(models.Player.BehaviorChoices.RANDOM),
+        )
+
+    def get_total_of_timed_out_matches(self):
+        timed_out_matches = [game for game in self.games if game.has_timed_out()]
+        return len(timed_out_matches)
+
+    def get_average_turns(self):
+        total_of_turns = sum([len(game.turns) for game in self.games])
+        total_of_games = len(self.games)
+        return total_of_turns / total_of_games
+
+    def get_behavior_victories_percentage(self, behavior):
+        behavior = behavior.value
+        behavior_victories = [game for game in self.games if game.winner.behavior == behavior]
+        behavior_victories = len(behavior_victories)
+        total_of_games = len(self.games)
+        return behavior_victories / total_of_games * 100
 
 
 class Game:
@@ -88,7 +115,10 @@ class Game:
             self.finish_game()
 
     def get_next_player(self):
-        return next(self.player_sequence)
+        try:
+            return next(self.player_sequence)
+        except (StopIteration, TypeError,):
+            self.player_sequence = self.get_player_sequence()
 
     def get_player_sequence(self):
         players = self.players.copy()
@@ -97,7 +127,7 @@ class Game:
             if player and player.account_balance >= 0:
                 yield player
                 self.last_player = player
-                players.append(player)
+            players.append(player)
 
     def create_turn(self):
         turn = models.Turn()

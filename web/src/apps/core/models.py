@@ -1,4 +1,6 @@
+from collections import namedtuple
 import random
+from decimal import Decimal
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -14,8 +16,8 @@ class Simulation(models.Model):
     DEFAULT_NUMBER_OF_PLAYERS = 4
     MIN_NUMBER_OF_PLAYERS = 2
     DEFAULT_MAX_TURNS = 1000
-    DEFAULT_INITIAL_ACCOUNT_BALANCE = 300.0
-    DEFAULT_BONUS = 100.0
+    DEFAULT_INITIAL_ACCOUNT_BALANCE = Decimal('300.00')
+    DEFAULT_BONUS = Decimal('100.00')
     number_of_properties = models.PositiveSmallIntegerField(
         _('number os properties'), default=DEFAULT_NUMBER_OF_PROPERTIES
     )
@@ -51,20 +53,36 @@ class Simulation(models.Model):
 
 
 class SimulationOutcome(models.Model):
-    simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE)
+    simulation = models.OneToOneField(Simulation, on_delete=models.CASCADE, related_name='outcome')
     timed_out_matches = models.PositiveSmallIntegerField(_('time out matches'))
     average_turns = models.PositiveSmallIntegerField(_('average match turns'))
-    random_behavior = models.PositiveSmallIntegerField(_('% random behavior wins'))
-    conservative_behavior = models.PositiveSmallIntegerField(_('% conservative behavior wins'))
-    picky_behavior = models.PositiveSmallIntegerField(_('% picky behavior wins'))
-    impulsive_behavior = models.PositiveSmallIntegerField(_('% impulsive behavior wins'))
+    impulsive_behavior = models.DecimalField(_('% impulsive behavior wins'), max_digits=5, decimal_places=2)
+    picky_behavior = models.DecimalField(_('% picky behavior wins'), max_digits=5, decimal_places=2)
+    conservative_behavior = models.DecimalField(_('% conservative behavior wins'), max_digits=5, decimal_places=2)
+    random_behavior = models.DecimalField(_('% random behavior wins'), max_digits=5, decimal_places=2)
+
+    BehaviorVictories = namedtuple('BehaviorVictories', ['behavior', 'victories'])
 
     class Meta:
         verbose_name = _('Simulation outcome')
         verbose_name_plural = _('Simulations outcomes')
 
     def __str__(self):
-        return f'{self.alias or self.pk}'
+        return f'{self.simulation}'
+
+    def winner_behavior(self):
+        behaviors = [
+            self.BehaviorVictories(
+                behavior=Player.BehaviorChoices.IMPULSIVE.value, victories=self.impulsive_behavior),
+            self.BehaviorVictories(
+                behavior=Player.BehaviorChoices.PICKY.value, victories=self.picky_behavior),
+            self.BehaviorVictories(
+                behavior=Player.BehaviorChoices.CONSERVATIVE.value, victories=self.conservative_behavior),
+            self.BehaviorVictories(
+                behavior=Player.BehaviorChoices.RANDOM.value, victories=self.random_behavior),
+        ]
+        winner_behavior = max(behaviors, key=lambda behavior: behavior.victories)
+        return winner_behavior.behavior
 
 
 class Match(models.Model):
@@ -79,7 +97,7 @@ class Match(models.Model):
 
     def create_players(self):
         players = []
-        behaviors_list = list(Player.TypeChoices)
+        behaviors_list = list(Player.BehaviorChoices)
         for order in range(self.simulation.number_of_players):
             behavior = behaviors_list[order % len(behaviors_list)]
             player = self.create_player(behavior=behavior, order=order)
@@ -97,8 +115,9 @@ class Match(models.Model):
     def create_properties(self):
         from apps.core.factories import PropertyFactory
         properties = []
-        rent_price = PropertyFactory.build().rent_price
-        sale_price = PropertyFactory.build().sale_price
+        _random_property = PropertyFactory.build()
+        rent_price = Decimal(_random_property.rent_price)
+        sale_price = Decimal(_random_property.sale_price)
         for order in range(self.simulation.number_of_properties):
             _property = self.create_property(order=order, rent_price=rent_price, sale_price=sale_price)
             properties.append(_property)
@@ -112,17 +131,17 @@ class Match(models.Model):
 
 
 class Player(models.Model):
-    class TypeChoices(models.TextChoices):
+    class BehaviorChoices(models.TextChoices):
         IMPULSIVE = 'impulsive', _('Impulsive')
         PICKY = 'picky', _('Picky')
         CONSERVATIVE = 'conservative', _('Conservative')
         RANDOM = 'random', _('Random')
     BEHAVIOR_METHODS = {}
-    behavior = models.CharField(_('behavior'), max_length=12, choices=TypeChoices.choices)
+    behavior = models.CharField(_('behavior'), max_length=12, choices=BehaviorChoices.choices)
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length=80)
-    account_balance = 0
     order = models.PositiveSmallIntegerField(_('order'))
+    account_balance = Decimal('0')
     accumulated_position = -1
 
     class Meta:
@@ -164,26 +183,26 @@ class Player(models.Model):
     def _impulsive_should_buy(self, _property):
         return True
 
-    BEHAVIOR_METHODS[TypeChoices.IMPULSIVE.value] = _impulsive_should_buy
+    BEHAVIOR_METHODS[BehaviorChoices.IMPULSIVE.value] = _impulsive_should_buy
 
     def _picky_should_buy(self, _property):
-        min_expected_rent_price = 50
+        min_expected_rent_price = Decimal(50)
         return _property.rent_price > min_expected_rent_price
 
-    BEHAVIOR_METHODS[TypeChoices.PICKY.value] = _picky_should_buy
+    BEHAVIOR_METHODS[BehaviorChoices.PICKY.value] = _picky_should_buy
 
     def _conservative_should_buy(self, _property):
-        min_expected_account_balance_after_buy = 80
+        min_expected_account_balance_after_buy = Decimal(80)
         return (self.account_balance - _property.sale_price) >= min_expected_account_balance_after_buy
 
-    BEHAVIOR_METHODS[TypeChoices.CONSERVATIVE.value] = _conservative_should_buy
+    BEHAVIOR_METHODS[BehaviorChoices.CONSERVATIVE.value] = _conservative_should_buy
 
     def _random_should_buy(self, _property):
         buy = True
         not_buy = False
         return random.choices([buy, not_buy])
 
-    BEHAVIOR_METHODS[TypeChoices.RANDOM.value] = _random_should_buy
+    BEHAVIOR_METHODS[BehaviorChoices.RANDOM.value] = _random_should_buy
 
 
 class Property(models.Model):
