@@ -26,6 +26,7 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ('match', 'order', 'behavior', 'name', 'account_balance', 'is_winner',)
     ordering = ('match', 'order',)
 
+
 @admin.register(models.Property)
 class PropertyAdmin(admin.ModelAdmin):
     list_display = ('match', 'order', 'owner', 'name', 'rent_price', 'sale_price', )

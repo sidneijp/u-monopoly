@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -27,7 +25,7 @@ class Simulation(models.Model):
     DEFAULT_NUMBER_OF_PLAYERS = 4
     MIN_NUMBER_OF_PLAYERS = 2
     DEFAULT_MAX_TURNS = 1000
-    DEFAULT_INITIAL_ACCOUNT_BALANCE = Decimal('300.00')
+    DEFAULT_INITIAL_ACCOUNT_BALANCE = 300.0
     number_of_properties = models.PositiveSmallIntegerField(
         _('number os properties'), default=DEFAULT_NUMBER_OF_PROPERTIES
     )

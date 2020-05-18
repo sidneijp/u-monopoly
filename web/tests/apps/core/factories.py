@@ -1,7 +1,6 @@
-from decimal import Decimal
 import factory.fuzzy
 
-from . import models
+from apps.core import models
 
 NULL_BOOLEAN_VALUES = (True, False, None,)
 
@@ -40,11 +39,7 @@ class SimulationFactory(factory.DjangoModelFactory):
     alias = factory.Faker('name')
 
     match_set = factory.RelatedFactoryList(
-        'apps.core.factories.MatchFactory', factory_related_name='simulation',
-        size=times_to_run.fuzz,
-    )
-    matches = factory.RelatedFactoryList(
-        'apps.core.factories.MatchFactory', factory_related_name='simulation',
+        'tests.apps.core.factories.MatchFactory', factory_related_name='simulation',
         size=times_to_run.fuzz,
     )
 
@@ -54,13 +49,12 @@ class SimulationFactory(factory.DjangoModelFactory):
 
 class MatchFactory(factory.DjangoModelFactory):
     simulation = factory.SubFactory(SimulationFactory)
-
-    players = factory.RelatedFactoryList(
-        'apps.core.factories.PlayerFactory', factory_related_name='match',
+    player_set = factory.RelatedFactoryList(
+        'tests.apps.core.factories.PlayerFactory', factory_related_name='match',
         size=2,
     )
-    properties = factory.RelatedFactoryList(
-        'apps.core.factories.PropertiesFactory', factory_related_name='match',
+    property_set = factory.RelatedFactoryList(
+        'tests.apps.core.factories.PropertyFactory', factory_related_name='match',
         size=2,
     )
 
@@ -79,7 +73,7 @@ class PlayerFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute_sequence
     def order(self, n):
-        return n % (self.match.simulation.number_of_players or 1)
+        return n
 
     class Meta:
         model = models.Player
@@ -87,7 +81,6 @@ class PlayerFactory(factory.DjangoModelFactory):
 
 class PropertyFactory(factory.DjangoModelFactory):
     match = factory.SubFactory(MatchFactory)
-    owner = factory.SubFactory(PlayerFactory)
     name = factory.Faker('street_address')
     sale_price = factory.fuzzy.FuzzyDecimal(
         low=models.Simulation.DEFAULT_INITIAL_ACCOUNT_BALANCE,
@@ -99,11 +92,10 @@ class PropertyFactory(factory.DjangoModelFactory):
         high=models.Simulation.DEFAULT_INITIAL_ACCOUNT_BALANCE * 3 / 5,
         precision=2
     )
-    is_winner = factory.fuzzy.FuzzyChoice(NULL_BOOLEAN_VALUES)
 
     @factory.lazy_attribute_sequence
     def order(self, n):
-        return n % (self.match.simulation.number_of_properties or 1)
+        return n
 
     class Meta:
         model = models.Property
