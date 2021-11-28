@@ -3,6 +3,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/39d03e6d97c7490397f719c1250ef82c)](https://www.codacy.com/manual/sidneijp/u-monopoly?utm_source=github.com&utm_medium=referral&utm_content=sidneijp/u-monopoly&utm_campaign=Badge_Coverage)
 [![CircleCI](https://circleci.com/gh/sidneijp/u-monopoly.svg?style=shield)](https://app.circleci.com/pipelines/github/sidneijp/u-monopoly)
 
+
 Micro Monopoly is a simplified "Monopoly" like game.
 
 ## URLs
