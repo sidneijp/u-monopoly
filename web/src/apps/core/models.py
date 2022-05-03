@@ -40,8 +40,8 @@ class Simulation(models.Model):
     alias = models.CharField(_('alias'), max_length=80, blank=True)
 
     class Meta:
-        verbose_name = _('Simulation')
-        verbose_name_plural = _('Simulations')
+        verbose_name = _('Simulation muito loka')
+        verbose_name_plural = _('Simulations muito lokas')
 
     def __str__(self):
         return f'{self.alias or self.pk}'
