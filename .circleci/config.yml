@@ -41,30 +41,6 @@ jobs:
                     docker tag "$DOCKER_REGISTRY"/u-monopoly:"$BUILD_VERSION" "$DOCKER_REGISTRY"/u-monopoly:latest;
                     docker push "$DOCKER_REGISTRY"/u-monopoly:"$BUILD_VERSION";
                     docker push "$DOCKER_REGISTRY"/u-monopoly:latest;
-            - run:
-                name: Deploy
-                command: |
-                    export BUILD_VERSION=`echo "$CIRCLE_SHA1" | cut -c 1-8`;
-                    # $CIRCLE_WORKING_DIRECTORY workaround
-                    # https://discuss.circleci.com/t/circle-working-directory-doesnt-expand/17007/7
-                    export CIRCLE_WORKING_DIRECTORY=`echo $CIRCLE_WORKING_DIRECTORY | sed "s|~|$HOME|"`
-
-                    cp machine.dat $HOME/.docker/
-                    cd $HOME/.docker/
-                    echo $DOCKER_MACHINE_ENCRPYTION_PASS | openssl enc -pbkdf2 -aes-256-cbc -pass stdin -d -in machine.dat > machine.tar.gz
-                    tar xzf machine.tar.gz
-                    sed -i "s|{HOME}|$HOME|" machine/machines/u-monopoly/config.json
-                    cd $CIRCLE_WORKING_DIRECTORY
-
-                    echo $STG_SECRETS_PASS | openssl enc -pbkdf2 -aes-256-cbc -pass stdin -d -in .stg.dat > .stg.tar.gz
-                    tar xzf .stg.tar.gz
-                    cp .stg/.env.stg .env
-                    cp .stg/web/.env.stg web/.env
-
-                    eval $(docker-machine env --shell sh u-monopoly)
-                    docker-compose -f docker-compose.yml -f docker-compose.stg.yml pull
-                    docker-compose -f docker-compose.yml -f docker-compose.stg.yml up -d --no-build --remove-orphans
-                    docker-compose -f docker-compose.yml -f docker-compose.stg.yml exec web pipenv run src/manage.py migrate
 workflows:
     version: 2.1
     integration:
